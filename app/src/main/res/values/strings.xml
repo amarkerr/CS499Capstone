@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">SAVEME.TIME</string>
+    <string name="login">Login</string>
+    <string name="username">Username:</string>
+    <string name="password">Password:</string>
+    <string name="register">Register</string>
+    <string name="add_event">Add Event</string>
+    <string name="calendar_icon">Calendar Icon</string>
+    <string name="date">Date:</string>
+    <string name="date_hint">Date: (YYYY-MM-DD)</string>
+    <string name="time">Time:</string>
+    <string name="time_hint">Time: (HH:MM)</string>
+    <string name="edit">Edit</string>
+    <string name="event_title">Event Title:</string>
+    <string name="event_title_short">Title:</string>
+    <string name="event_description">Event Details:</string>
+    <string name="event_description_short">Details:</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="delete">Delete</string>
+    <string name="add_event_cntdesc">ADD EVENT</string>
+    <string name="settings">Settings</string>
+    <string name="go_back">Go back</string>
+    <string name="save_event">Save Event</string>
+    <string name="day_night_mode">Day Mode/Night Mode</string>
+    <string name="allow_sms">Allow SMS notification?</string>
+    <string name="phone_number">Phone Number:</string>
+</resources>
