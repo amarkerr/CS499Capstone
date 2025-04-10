@@ -10,15 +10,22 @@ public class UserViewModel extends AndroidViewModel {
 
     public UserViewModel(@NonNull Application application) {
         super(application);
-        repository = new UserRepository(application);
+        repository = new UserRepository();
     }
 
-    public boolean login(String username, String password) {
-        return repository.loginUser(username, password);
+    public void login(String email, String password, UserRepository.AuthCallback callback) {
+        repository.loginUser(email, password, callback);
     }
 
-    public boolean register(String username, String password, String phone) {
-        return repository.registerUser(username, password, phone);
+    public void register(String email, String password, UserRepository.AuthCallback callback) {
+        repository.registerUser(email, password, callback);
+    }
+
+    public String getCurrentUserEmail() {
+        return repository.getCurrentUserEmail();
+    }
+
+    public void logout() {
+        repository.logoutUser();
     }
 }
-

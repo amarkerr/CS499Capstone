@@ -16,8 +16,9 @@ import java.util.Locale;
 public class EventEditActivity extends AppCompatActivity {
     private EditText eventNameEditText, eventDateEditText, eventTimeEditText, eventDescriptionEditText;
     private EventViewModel eventViewModel;
-    private int eventId;
+    private String eventId;
     private Calendar calendar;
+    private Event currentEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,25 +42,25 @@ public class EventEditActivity extends AppCompatActivity {
         eventDateEditText.setOnClickListener(v -> showDatePicker());
         eventTimeEditText.setOnClickListener(v -> showTimePicker());
 
-        eventId = getIntent().getIntExtra("event_id", -1);
-        if (eventId != -1) {
-            loadEventDetails(eventId);
+        eventId = getIntent().getStringExtra("event_id");
+        if (eventId != null) {
+            eventViewModel.getEvent(eventId).observe(this, event -> {
+                if (event != null) {
+                    currentEvent = event;
+                    eventNameEditText.setText(event.getName());
+                    eventDateEditText.setText(event.getDate());
+                    eventTimeEditText.setText(event.getTime());
+                    eventDescriptionEditText.setText(event.getDescription());
+                }
+            });
         }
 
         saveEventButton.setOnClickListener(v -> saveEvent());
     }
 
-    private void loadEventDetails(int id) {
-        Event event = eventViewModel.getEvent(id);
-        if (event != null) {
-            eventNameEditText.setText(event.getName());
-            eventDateEditText.setText(event.getDate());
-            eventTimeEditText.setText(event.getTime());
-            eventDescriptionEditText.setText(event.getDescription());
-        }
-    }
-
     private void saveEvent() {
+        if (currentEvent == null) return;
+
         String name = eventNameEditText.getText().toString().trim();
         String date = eventDateEditText.getText().toString().trim();
         String time = eventTimeEditText.getText().toString().trim();
@@ -75,9 +76,12 @@ public class EventEditActivity extends AppCompatActivity {
             return;
         }
 
-        Event event = new Event(eventId, name, date, time, description);
-        eventViewModel.updateEvent(event);
+        currentEvent.setName(name);
+        currentEvent.setDate(date);
+        currentEvent.setTime(time);
+        currentEvent.setDescription(description);
 
+        eventViewModel.updateEvent(currentEvent);
         Toast.makeText(this, "Event updated successfully", Toast.LENGTH_SHORT).show();
         finish();
     }
@@ -102,4 +106,3 @@ public class EventEditActivity extends AppCompatActivity {
         dialog.show();
     }
 }
-

@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 public class EventViewActivity extends AppCompatActivity {
-
     private EventViewModel eventViewModel;
-    private int eventId;
+    private String eventId;
+    private Event currentEvent;
 
     private TextView eventNameTextView;
     private TextView eventDateTextView;
@@ -26,8 +26,6 @@ public class EventViewActivity extends AppCompatActivity {
 
         eventViewModel = new ViewModelProvider(this).get(EventViewModel.class);
 
-        eventId = getIntent().getIntExtra("event_id", -1);
-
         eventNameTextView = findViewById(R.id.view_event_name);
         eventDateTextView = findViewById(R.id.view_event_date);
         eventTimeTextView = findViewById(R.id.view_event_time);
@@ -35,8 +33,17 @@ public class EventViewActivity extends AppCompatActivity {
         Button editEventButton = findViewById(R.id.edit_event_button);
         Button deleteEventButton = findViewById(R.id.delete_event_button);
 
-        if (eventId != -1) {
-            loadEventDetails(eventId);
+        eventId = getIntent().getStringExtra("event_id");
+        if (eventId != null) {
+            eventViewModel.getEvent(eventId).observe(this, event -> {
+                if (event != null) {
+                    currentEvent = event;
+                    eventNameTextView.setText(event.getName());
+                    eventDateTextView.setText(event.getDate());
+                    eventTimeTextView.setText(event.getTime());
+                    eventDescriptionTextView.setText(event.getDescription());
+                }
+            });
         }
 
         editEventButton.setOnClickListener(v -> {
@@ -46,29 +53,11 @@ public class EventViewActivity extends AppCompatActivity {
         });
 
         deleteEventButton.setOnClickListener(v -> {
-            eventViewModel.deleteEvent(eventId);
-            Toast.makeText(this, "Event deleted successfully", Toast.LENGTH_SHORT).show();
-            finish();
+            if (currentEvent != null) {
+                eventViewModel.deleteEvent(currentEvent.getId());
+                Toast.makeText(this, "Event deleted successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (eventId != -1) {
-            loadEventDetails(eventId);
-        }
-    }
-
-    private void loadEventDetails(int id) {
-        Event event = eventViewModel.getEvent(id);
-        if (event != null) {
-            eventNameTextView.setText(event.getName());
-            eventDateTextView.setText(event.getDate());
-            eventTimeTextView.setText(event.getTime());
-            eventDescriptionTextView.setText(event.getDescription());
-        } else {
-            Toast.makeText(this, "Unable to load event", Toast.LENGTH_SHORT).show();
-        }
     }
 }

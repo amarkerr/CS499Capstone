@@ -1,50 +1,45 @@
 package com.zybooks.cs360_project2;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class UserRepository {
-    private final DatabaseHelper dbHelper;
 
-    public UserRepository(Context context) {
-        dbHelper = new DatabaseHelper(context);
+    private final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+    public interface AuthCallback {
+        void onComplete(boolean success, String message);
     }
 
-    public boolean loginUser(String username, String password) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(DatabaseHelper.TABLE_USERS,
-                new String[]{DatabaseHelper.COLUMN_USER_ID},
-                DatabaseHelper.COLUMN_USERNAME + "=? AND " + DatabaseHelper.COLUMN_PASSWORD + "=?",
-                new String[]{username, password},
-                null, null, null);
-
-        boolean isValid = cursor != null && cursor.moveToFirst();
-        if (cursor != null) cursor.close();
-        return isValid;
+    public void loginUser(String email, String password, AuthCallback callback) {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onComplete(true, "Login successful");
+                    } else {
+                        callback.onComplete(false, task.getException().getMessage());
+                    }
+                });
     }
 
-    public boolean registerUser(String username, String password, String phone) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        Cursor cursor = db.query(DatabaseHelper.TABLE_USERS,
-                new String[]{DatabaseHelper.COLUMN_USER_ID},
-                DatabaseHelper.COLUMN_USERNAME + "=?",
-                new String[]{username},
-                null, null, null);
+    public void registerUser(String email, String password, AuthCallback callback) {
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onComplete(true, "Registration successful");
+                    } else {
+                        callback.onComplete(false, task.getException().getMessage());
+                    }
+                });
+    }
 
-        boolean exists = cursor != null && cursor.moveToFirst();
-        if (exists) {
-            cursor.close();
-            return false;
+    public String getCurrentUserEmail() {
+        if (firebaseAuth.getCurrentUser() != null) {
+            return firebaseAuth.getCurrentUser().getEmail();
         }
+        return null;
+    }
 
-        db.execSQL("INSERT INTO " + DatabaseHelper.TABLE_USERS + " (" +
-                        DatabaseHelper.COLUMN_USERNAME + ", " +
-                        DatabaseHelper.COLUMN_PASSWORD + ", " +
-                        DatabaseHelper.COLUMN_PHONE_NUMBER + ") VALUES (?, ?, ?)",
-                new Object[]{username, password, phone});
-        if (cursor != null) cursor.close();
-        return true;
+    public void logoutUser() {
+        firebaseAuth.signOut();
     }
 }
-

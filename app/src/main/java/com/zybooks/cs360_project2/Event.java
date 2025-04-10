@@ -1,26 +1,31 @@
 package com.zybooks.cs360_project2;
 
 public class Event {
-    private int id;
+    private String id;           // Firestore document ID
     private String name;
     private String date;
     private String time;
     private String description;
+    private String username;
 
-    public Event(int id, String name, String date, String time, String description) {
+    // 🔹 Required by Firebase
+    public Event() {}
+
+    public Event(String id, String name, String date, String time, String description, String username) {
         this.id = id;
         this.name = name;
         this.date = date;
         this.time = time;
         this.description = description;
+        this.username = username;
     }
 
-    // Getters and setters
-    public int getId() {
+    // 🔹 Getters & Setters
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -54,5 +59,13 @@ public class Event {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

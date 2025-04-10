@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">SAVEME.TIME</string>
     <string name="login">Login</string>
-    <string name="username">Username:</string>
+    <string name="email">Email:</string>
     <string name="password">Password:</string>
     <string name="register">Register</string>
     <string name="add_event">Add Event</string>
@@ -22,7 +22,6 @@
     <string name="go_back">Go back</string>
     <string name="save_event">Save Event</string>
     <string name="day_night_mode">Day Mode/Night Mode</string>
-    <string name="allow_sms">Allow SMS notification?</string>
     <string name="phone_number">Phone Number:</string>
     <string name="please_fill">Please fill all required fields</string>
 </resources>

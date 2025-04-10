@@ -1,76 +1,66 @@
 package com.zybooks.cs360_project2;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import com.google.firebase.firestore.*;
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventRepository {
-    private final DatabaseHelper dbHelper;
 
-    public EventRepository(Context context) {
-        dbHelper = new DatabaseHelper(context);
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private final CollectionReference eventsRef = db.collection("events");
+
+    public interface EventCallback {
+        void onSuccess(List<Event> events);
     }
 
-    public List<Event> getEventsByDate(String date) {
-        List<Event> events = new ArrayList<>();
-        Cursor cursor = dbHelper.getEventsByDate(date);
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_ID));
-                String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_NAME));
-                String time = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_TIME));
-                String description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_DESCRIPTION));
-                events.add(new Event(id, name, date, time, description));
-            } while (cursor.moveToNext());
-            cursor.close();
-        }
-        return events;
+    public interface SingleEventCallback {
+        void onSuccess(Event event);
     }
 
-    public void deleteEventById(int id) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.delete(DatabaseHelper.TABLE_EVENTS, DatabaseHelper.COLUMN_EVENT_ID + "=?", new String[]{String.valueOf(id)});
+    // 🔍 Get all events on a specific date for a user
+    public void getEventsByDate(String date, String username, @NonNull EventCallback callback) {
+        eventsRef
+                .whereEqualTo("date", date)
+                .whereEqualTo("username", username)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Event> events = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        Event event = doc.toObject(Event.class);
+                        event.setId(doc.getId()); // Set the doc ID
+                        events.add(event);
+                    }
+                    callback.onSuccess(events);
+                });
     }
 
-    public Event getEventById(int id) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.query(DatabaseHelper.TABLE_EVENTS, null,
-                DatabaseHelper.COLUMN_EVENT_ID + "=?",
-                new String[]{String.valueOf(id)}, null, null, null);
-
-        if (cursor != null && cursor.moveToFirst()) {
-            String name = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_NAME));
-            String date = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_DATE));
-            String time = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_TIME));
-            String description = cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EVENT_DESCRIPTION));
-            cursor.close();
-            return new Event(id, name, date, time, description);
-        }
-        return null;
+    // ➕ Add new event
+    public void addEvent(Event event) {
+        eventsRef.add(event);
     }
 
-    public void addEvent(Event event, String username) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.execSQL("INSERT INTO " + DatabaseHelper.TABLE_EVENTS + " (" +
-                        DatabaseHelper.COLUMN_EVENT_NAME + ", " +
-                        DatabaseHelper.COLUMN_EVENT_DATE + ", " +
-                        DatabaseHelper.COLUMN_EVENT_TIME + ", " +
-                        DatabaseHelper.COLUMN_EVENT_DESCRIPTION + ", " +
-                        DatabaseHelper.COLUMN_USERNAME + ") VALUES (?, ?, ?, ?, ?)",
-                new Object[]{event.getName(), event.getDate(), event.getTime(), event.getDescription(), username});
+    // ❌ Delete event
+    public void deleteEventById(String eventId) {
+        eventsRef.document(eventId).delete();
     }
 
+    // 🔎 Get event by ID
+    public void getEventById(String eventId, @NonNull SingleEventCallback callback) {
+        eventsRef.document(eventId)
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Event event = doc.toObject(Event.class);
+                        event.setId(doc.getId());
+                        callback.onSuccess(event);
+                    }
+                });
+    }
+
+    // 🔄 Update event
     public void updateEvent(Event event) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        db.execSQL("UPDATE " + DatabaseHelper.TABLE_EVENTS + " SET " +
-                        DatabaseHelper.COLUMN_EVENT_NAME + " = ?, " +
-                        DatabaseHelper.COLUMN_EVENT_DATE + " = ?, " +
-                        DatabaseHelper.COLUMN_EVENT_TIME + " = ?, " +
-                        DatabaseHelper.COLUMN_EVENT_DESCRIPTION + " = ? WHERE " +
-                        DatabaseHelper.COLUMN_EVENT_ID + " = ?",
-                new Object[]{event.getName(), event.getDate(), event.getTime(), event.getDescription(), event.getId()});
+        eventsRef.document(event.getId()).set(event);
     }
 }

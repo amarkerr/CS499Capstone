@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 public class RegisterActivity extends AppCompatActivity {
-    private EditText usernameEditText, passwordEditText, phoneEditText;
+    private EditText emailEditText, passwordEditText;
     private UserViewModel userViewModel;
 
     @Override
@@ -20,31 +20,29 @@ public class RegisterActivity extends AppCompatActivity {
 
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
-        usernameEditText = findViewById(R.id.username_reg);
+        emailEditText = findViewById(R.id.username_reg); // reused as email
         passwordEditText = findViewById(R.id.password_reg);
-        phoneEditText = findViewById(R.id.phone_number);
         Button registerButton = findViewById(R.id.register_button);
 
         registerButton.setOnClickListener(v -> registerUser());
     }
 
     private void registerUser() {
-        String username = usernameEditText.getText().toString().trim();
+        String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
-        String phone = phoneEditText.getText().toString().trim();
 
-        if (username.isEmpty() || password.isEmpty() || phone.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        boolean success = userViewModel.register(username, password, phone);
-        if (success) {
-            Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-        } else {
-            Toast.makeText(this, "Username already exists", Toast.LENGTH_SHORT).show();
-        }
+        userViewModel.register(email, password, (success, message) -> {
+            if (success) {
+                Toast.makeText(this, "Registration successful", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+            } else {
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
-

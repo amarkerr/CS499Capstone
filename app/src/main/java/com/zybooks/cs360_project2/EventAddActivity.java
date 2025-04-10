@@ -63,8 +63,8 @@ public class EventAddActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("user_prefs", MODE_PRIVATE);
         String username = prefs.getString("username", "");
 
-        Event event = new Event(0, name, date, time, description);
-        eventViewModel.addEvent(event, username);
+        Event event = new Event(null, name, date, time, description, username); // null = let Firestore assign ID
+        eventViewModel.addEvent(event);
 
         Toast.makeText(this, "Event added successfully", Toast.LENGTH_SHORT).show();
         finish();
@@ -90,4 +90,3 @@ public class EventAddActivity extends AppCompatActivity {
         dialog.show();
     }
 }
-

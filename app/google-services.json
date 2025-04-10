@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "913350347475",
+    "project_id": "savemetime-8004b",
+    "storage_bucket": "savemetime-8004b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913350347475:android:86fe71c703e66483b2e226",
+        "android_client_info": {
+          "package_name": "com.zybooks.cs360_project2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC516tOl65YqKksIiDHodwCpdNdbJsHOAw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
