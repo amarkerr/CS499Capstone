@@ -1,2 +1,2 @@
-# CS499Capstone
-Repository for CS499 artifacts all coming from CS360 final project
+# SAVEME.TIME
+Attached are the two repositories featureing the full app bundle of the original and final product
